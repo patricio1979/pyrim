@@ -2,7 +2,7 @@
 
 > A Python implementation of the RIM (Readability Index for Music), a cognitive-mathematical model for measuring readability in written music.
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[License: MIT]([https://img.shields.io/badge/License-GPLv3-blue.svg](https://opensource.org/license/mit))
 
 ## Description
 
