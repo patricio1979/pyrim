@@ -10,11 +10,9 @@ This repository contains a Python implementation of the **Readability Index for 
 
 > Calatayud, P. F.; Padilla Longoria, P.; Galera-Núñez, M. del M.; Pérez-Acosta, G. (2024). *El ÍLeMus (Índice de Legibilidad Musical). Un nuevo modelo cognitivo matemático para la medición de la legibilidad en música escrita.* Doctoral dissertation. México: Music posgraduate program, UNAM.
 
-Published in Spanish:
-[TesiUNAM](https://tesiunamdocumentos.dgb.unam.mx/ptd2024/ene_mar/0852222/Index.html)
+Published in Spanish: [TesiUNAM](https://tesiunamdocumentos.dgb.unam.mx/ptd2024/ene_mar/0852222/Index.html)
 
-Published in English:  
-[Journal of Music, Technology & Education](https://intellectdiscover.com/content/journals/10.1386/jmte_00066_1#abstract_content)
+Published in English: [Journal of Music, Technology & Education](https://intellectdiscover.com/content/journals/10.1386/jmte_00066_1#abstract_content)
 
 For the sake of simplicity, the RIM quantifies musical readability by analyzing notation complexity across multiple dimensions including rhythm, pitch, dynamics, articulation, visual density (ink/pixels), and information entropy — then synthesizing results via PCA into a single readability score.
 
