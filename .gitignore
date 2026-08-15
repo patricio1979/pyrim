@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+
+# Visual Studio Code
+.vscode/
+
+# test corpus
+CORPUS/
+
+# JOSS report
+JOSS/
+
+# MuseScore backups
+.mscbackup/
+**/.mscbackup/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Temporary score/image files
+PNG_temp_score_files/
