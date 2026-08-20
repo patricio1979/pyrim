@@ -1,8 +1,10 @@
 '''
-pyRIM, an open-source software to quantify what is possible of the readability of musical scores.
+pyRIM, an open-source software to quantify the readability of musical scores in xml format.
+
+source my-venv/bin/activate 
+python /Users/patriciocalatayud/Desktop/INVESTIGACIÓN/pyRIM/pyRIM.py
 
 TODO: 
-* Implement all musicXML elements
 * Implement MIDI version, and other music files
 '''
 import xml.etree.ElementTree as ET
