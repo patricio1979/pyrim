@@ -11,10 +11,10 @@ import xml.etree.ElementTree as ET
 import os
 import platform
 import ast
+import tkinter as tk
 from tkinter import filedialog
 import zipfile
 import tempfile
-
 
 from genericFunctions.gatherElts import * 
 from genericFunctions.mru import *
@@ -119,9 +119,6 @@ for i in directory:
 
     # Define Indicator variables for each piece analyzed
     freeEnergy = 0
-    entropy_per_MRU = {}
-    KLdiv_per_MRU = {}
-    totalentropy_per_MRU = {}
     te = 0
     bits_per_MRU = 0
 
@@ -238,24 +235,19 @@ for i in directory:
 
         print('5. Make distributions and entropy measurements...')
         # probRh = hisToProb(mruInfo[1],histoRh[0],mruInfo[4]) #0 probabilities, 1 histogram, 2 elementsPerMru
+        mean_entropy_per_MRU = {}
+
         for j in range(len(notationClasses)-2): # Last item in that variable is measure durations...
 
             if (classesToEval[j] == 'y'):
-                # print(notationClasses[j][0]) # Name of current notation class
                 htp = his_to_prob(mruInfo[1],notationClasses[j][1],mruInfo[4])
-                etp = entropies_normalized(htp) #0 entropy in each MRU, 1 kullback entropy in each MRU, 2 TotalEntropy
 
-                entropy_per_MRU[notationClasses[j][0].replace('Pond', '')] = etp[0]
-                KLdiv_per_MRU[notationClasses[j][0].replace('Pond', '')] = etp[1]
-                totalentropy_per_MRU[notationClasses[j][0].replace('Pond', '')] = [sum(x) * weights[notationClasses[j][0]] for x in zip(etp[0], etp[1])]
-                te += etp[2] * weights[notationClasses[j][0]]
-        bits_per_MRU = te / mruInfo[1]
-        # carga informacional promedio por MRU, considerando la entropía de las clases de notación y la divergencia KL entre MRUs consecutivos, ponderadas según la relevancia de cada clase.
+                etp = entropies_normalized(htp)
+                bits_per_MRU += etp[3] * weights[notationClasses[j][0]]
 
-        # 780 - cuarto = 76.923076923076923
-        # 1.360 - cuarto = 44.117647058823529
-        # 2000 - cuarto = 30.0
-
+        # 780 - quarter = 76.923076923076923
+        # 1.360 - quarter = 44.117647058823529
+        # 2000 - quarter = 30.0
         reference_reading_time = 0
         match tactus:
             case 0: # Basic
@@ -268,7 +260,7 @@ for i in directory:
                 raise ValueError(f"Invalid tactus level: {tactus}")
 
         # Free Energy is operationalized as the information load per MRU weighted by the ratio between the reference reading time associated with the agent's expertise level and the mean reading time required by the musical material.
-        freeEnergy = bits_per_MRU * (reference_reading_time / mruInfo[2]) # x milliseconds in each MRU
+        freeEnergy = bits_per_MRU * (mruInfo[2] / reference_reading_time) # x milliseconds in each MRU
 
         current_os = platform.system()
 

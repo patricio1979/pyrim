@@ -29,7 +29,7 @@ def build_measure_patterns(accents, total_measures):
 # <----- MAIN
 def gatherElts(els,fileName,instName,rhFig,default_speed,characters_str):
     metroList = []
-    meas_nums = []                               # Useful if measure numbers were universally numbered if ommited, but no
+    meas_nums = []                              # Useful if measure numbers were universally numbered if ommited, but no
     divisions = rhFig['quarter']                # Default division (denominator in time signature)
     accentsStr = []                             # Accent pattern in the form 'a ' + 'duration in denominators as 1,2,4,8,16...
     

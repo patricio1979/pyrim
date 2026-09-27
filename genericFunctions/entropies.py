@@ -2,132 +2,103 @@ import math
 
 
 def entropies_normalized(data):
-    """
-    Compute Shannon entropy and KL divergence for each MRU.
 
-    Args:
-        data = (
-            global_probs,
-            prob_bins,
-            mru_counts
-        )
+    # --------------------------------------------------
+    # DATA
+    # --------------------------------------------------
 
-        global_probs:
-            Global probability distribution P(x).
-
-        prob_bins:
-            Probability distribution P(x | MRU)
-            for each MRU.
-
-        mru_counts:
-            Frequency counts for each value in each MRU.
-
-    Returns:
-        entropy_mrus:
-            Shannon entropy for each MRU, in bits.
-
-        kl_mrus:
-            KL divergence between consecutive MRUs, in bits.
-
-        total_score:
-            Sum of all entropy and KL values, in raw bits.
-    """
-
-    global_probs = data[0]
-    prob_bins = data[1]
+    progressive_probs = data[0]
+    progressive_counts = data[1]
     mru_counts = data[2]
 
-    if not mru_counts:
-        return [], [], 0.0
+    if not progressive_probs:
+        return 0.0, 0.0, 0.0, 0.0
 
-    # ---------------------------------------------------------
-    # 1. Vocabulary
-    # ---------------------------------------------------------
 
-    vocab = list(global_probs.keys())
+    # --------------------------------------------------
+    # 1. INFORMATION CONTENT PROGRESIVO
+    # --------------------------------------------------
 
-    if not vocab:
-        return (
-            [0.0] * len(mru_counts),
-            [0.0] * len(mru_counts),
-            0.0
+    total_information_content = 0.0
+    total_entropy = 0.0
+
+    n_mrus = len(progressive_probs)
+
+
+    for i, current_probs in enumerate(progressive_probs):
+
+        # --------------------------------------------------
+        # INFORMATION CONTENT
+        # --------------------------------------------------
+
+        mru_information_content = 0.0
+
+        counts = mru_counts[i]
+
+        for value, count in counts.items():
+
+            if count > 0:
+
+                # Probabilidad correspondiente a la
+                # distribución progresiva de esta MRU
+                p = current_probs.get(value, 0.0)
+
+                if p > 0:
+
+                    information = -math.log2(p)
+
+                    mru_information_content += (
+                        count * information
+                    )
+
+        total_information_content += (
+            mru_information_content
         )
 
 
-    # ---------------------------------------------------------
-    # 2. Shannon entropy per MRU
-    # ---------------------------------------------------------
+        # --------------------------------------------------
+        # ENTROPY
+        # --------------------------------------------------
 
-    entropy_mrus = []
+        mru_entropy = 0.0
 
-    for probabilities in prob_bins:
-
-        entropy = 0.0
-
-        for p in probabilities.values():
+        for value, p in current_probs.items():
 
             if p > 0:
-                entropy -= p * math.log2(p)
 
-        entropy_mrus.append(entropy)
-
-
-    # ---------------------------------------------------------
-    # 3. KL divergence between consecutive MRUs
-    # ---------------------------------------------------------
-
-    kl_mrus = [0.0]
-
-    # Small smoothing value to avoid log(0)
-    alpha = 1e-6
-
-
-    def smoothed_dist(probabilities):
-
-        # Add alpha to every vocabulary element
-        smoothed = {
-            k: probabilities.get(k, 0.0) + alpha
-            for k in vocab
-        }
-
-        # Normalize so that probabilities sum to 1
-        Z = sum(smoothed.values())
-
-        return {
-            k: value / Z
-            for k, value in smoothed.items()
-        }
-
-
-    for i in range(1, len(prob_bins)):
-
-        prev = smoothed_dist(prob_bins[i - 1])
-        curr = smoothed_dist(prob_bins[i])
-
-        kl = 0.0
-
-        for k in vocab:
-
-            if curr[k] > 0 and prev[k] > 0:
-
-                kl += (
-                    curr[k]
-                    * math.log2(curr[k] / prev[k])
+                mru_entropy -= (
+                    p * math.log2(p)
                 )
 
-        kl_mrus.append(kl)
+        total_entropy += mru_entropy
 
 
-    # ---------------------------------------------------------
-    # 4. Total information score
-    # ---------------------------------------------------------
+    # --------------------------------------------------
+    # 2. NORMALIZACIONES
+    # --------------------------------------------------
 
-    total_entropy = sum(entropy_mrus)
+    mean_information_content = (
+        total_information_content / n_mrus
+    )
 
-    total_kl = sum(kl_mrus)
+    mean_entropy = (
+        total_entropy / n_mrus
+    )
 
-    # Accumulated informational load
-    total_score = total_entropy + total_kl
+
+    # --------------------------------------------------
+    # 3. COMPOSITE
+    # --------------------------------------------------
+
+    final_value = (
+        mean_information_content
+        + mean_entropy
+    )
 
 
-    return entropy_mrus, kl_mrus, total_score
+    return (
+        mean_information_content,
+        mean_entropy,
+        0.0,       # Jensen-Shannon eliminado por ahora
+        final_value
+    )

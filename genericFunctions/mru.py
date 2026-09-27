@@ -1,8 +1,8 @@
 import math
 
 # <----- HELPERS
-def round_up(x, a):
-    return math.ceil(x / a) * a
+def round_up(x, multiple):
+    return math.floor((x + multiple / 2) / multiple) * multiple
 
 def assign_accent(time_signature_numerator):
 
@@ -237,16 +237,14 @@ def mru(durs, focusPart, metro_list, tactus, rhythm_meas, accent_pattern):
         case 0:
             mru_count = 0
             for i in range(len(time_signatures)):
-                num = round_up(durs[i], 1 / time_signatures[i][1]) # Anacruxis bug
-                mru_count += int(num / (1 / time_signatures[i][1]))
+                num = round_up(durs[i], 0.0009765625) # Anacruxis bug
+                mru_count += num / (1 / time_signatures[i][1])
         case 1:
             mru_count = count_mru_containers(durs, accent_pattern)
         case 2:
             mru_count = len(time_signatures)
         case _:
             print('no definition for such tactus value...')
-
-        
 
     # Speed in each measure
     speed = 1000
@@ -302,7 +300,8 @@ def mru(durs, focusPart, metro_list, tactus, rhythm_meas, accent_pattern):
         speeds_per_measure.append(current_speed)
     
     totalDur = sum(speeds_per_measure)
+
     mru_avg = totalDur / mru_count
     # print(mru_count)
     # print(time_signatures)
-    return totalDur, mru_count, mru_avg, time_signatures, newMru, accent_pattern
+    return totalDur, round_up(mru_count,1), mru_avg, time_signatures, newMru, accent_pattern

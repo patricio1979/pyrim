@@ -37,45 +37,28 @@ def count_with_vocab(items, vocab_dict):
 
 def his_to_prob(mru_count, histo, rhythm_meas):
     """
-    Organize notation events by MRU and calculate their
-    empirical probability distributions.
-
-    Args:
-        mru_count:
-            Number of MRU bins.
-
-        histo:
-            List of events:
-            [stave][voice][event] = [index, value, measure_num]
-
-        rhythm_meas:
-            Timing map:
-            [stave][voice][event] = [index, value, measure_num, mru_idx]
+    Organize notation events by MRU and calculate
+    progressive empirical probability distributions.
 
     Returns:
-        global_probs:
-            Dictionary containing P(value) globally.
+        progressive_probs:
+            P(value) accumulated progressively up to each MRU.
 
-        prob_bins:
-            List of dictionaries containing P(value | MRU).
+        progressive_counts:
+            Accumulated counts up to each MRU.
 
         mru_counts:
-            List of dictionaries containing frequency counts
-            for each value in each MRU.
+            Counts belonging only to each individual MRU.
     """
 
     # ---------------------------------------------------------
-    # 1. Collect values and assign them to their MRU
+    # 1. Assign events to their MRU
     # ---------------------------------------------------------
 
-    all_values = []
-
-    # One list of values for each MRU
     mrus = [[] for _ in range(mru_count)]
 
     for i in range(len(histo)):
 
-        # Avoid index mismatch between histo and rhythm_meas
         if i >= len(rhythm_meas):
             continue
 
@@ -92,11 +75,9 @@ def his_to_prob(mru_count, histo, rhythm_meas):
                 label = event[0]
                 value = event[1]
 
-                # Ignore hidden/artificial events
                 if 'no' in label or 'add' in label:
                     continue
 
-                # Find the corresponding rhythmic event
                 matched = [
                     item
                     for item in voice_rhythm
@@ -111,84 +92,47 @@ def his_to_prob(mru_count, histo, rhythm_meas):
                 except (IndexError, ValueError, TypeError):
                     continue
 
-                # Make sure the MRU exists
                 if 0 <= mru_idx < mru_count:
-
-                    all_values.append(value)
                     mrus[mru_idx].append(value)
 
-
     # ---------------------------------------------------------
-    # 2. Global vocabulary and global probabilities
+    # 2. Counts within each individual MRU
     # ---------------------------------------------------------
-
-    if all_values:
-
-        global_counter = Counter(all_values)
-
-        total = len(all_values)
-
-        global_probs = {
-            value: count / total
-            for value, count in global_counter.items()
-        }
-
-        vocab = list(global_counter.keys())
-
-    else:
-
-        global_probs = {}
-        vocab = []
-
-
-    # ---------------------------------------------------------
-    # 3. Frequency distribution for every MRU
-    # ---------------------------------------------------------
-
-    empty_hist = {
-        value: 0
-        for value in vocab
-    }
 
     mru_counts = []
 
     for mru_bin in mrus:
-
-        counts = dict(empty_hist)
-
-        for value in mru_bin:
-
-            if value in counts:
-                counts[value] += 1
-
-        mru_counts.append(counts)
-
+        mru_counts.append(dict(Counter(mru_bin)))
 
     # ---------------------------------------------------------
-    # 4. Probability distribution for every MRU
+    # 3. Progressive cumulative counts and probabilities
     # ---------------------------------------------------------
 
-    prob_bins = []
+    progressive_counts = []
+    progressive_probs = []
 
-    for counts in mru_counts:
+    cumulative_counts = Counter()
 
-        total = sum(counts.values())
+    for i in range(mru_count):
+
+        # Add current MRU to accumulated history
+        cumulative_counts.update(mru_counts[i])
+
+        counts_i = dict(cumulative_counts)
+
+        progressive_counts.append(counts_i)
+
+        total = sum(counts_i.values())
 
         if total == 0:
-
-            probabilities = {
-                value: 0.0
-                for value in vocab
-            }
+            probabilities_i = {}
 
         else:
-
-            probabilities = {
+            probabilities_i = {
                 value: count / total
-                for value, count in counts.items()
+                for value, count in counts_i.items()
             }
 
-        prob_bins.append(probabilities)
+        progressive_probs.append(probabilities_i)
 
-
-    return global_probs, prob_bins, mru_counts
+    return progressive_probs, progressive_counts, mru_counts
