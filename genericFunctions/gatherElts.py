@@ -529,7 +529,7 @@ def gatherElts(els,fileName,instName,rhFig,default_speed,characters_str, tempo_s
             [meas_nums[idx], metroItems]
         )
 
-    print(metroList)
+    # print(metroList)
     # print(accentsStr)
     accents_pattern = build_measure_patterns(accentsStr,len(meas_nums))
     # print(accents_pattern)
