@@ -53,6 +53,10 @@ with open(resource_path('textDefinitions/thesaurusCharacter.json')) as f:
     data = f.read()
 characters = ast.literal_eval(data)
 
+with open(resource_path('textDefinitions/thesaurusTempo.json')) as f:
+    data = f.read()
+tempo = ast.literal_eval(data)
+
 # GLOBAL VARS and DICTIONARIES
 results = []
 
@@ -209,7 +213,7 @@ for i in directory:
         # 1. Gather escential elements.
         
         # INPUT: els, fileName, instName, rhFig, default_speed, characters_str
-        elts = gatherElts(root,i,partName,fig,quarterDefaultSpeed,characters) 
+        elts = gatherElts(root,i,partName,fig,quarterDefaultSpeed,characters,tempo) 
         # OUTPUT: 0 title, 1 nStaves, 2 attributes, 3 metroList, 4 divisions, 5 focusPart, 6 measNums, 7 instName, 8 accents_pattern
 
         print('2. Make histograms for all notation classes...')
